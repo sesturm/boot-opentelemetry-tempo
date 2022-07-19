@@ -17,6 +17,34 @@ services:
       - ./etc/loki-local.yaml:/etc/loki/loki-local.yaml
       - ./data/loki-data:/tmp/loki
 
+  rabbitmq:
+    image: rabbitmq:3.7.28-management
+    #container_name: rabbitmq
+    volumes:
+        - ./etc/rabbitmq/:/etc/rabbitmq/
+        - ./data/rabbitmq/data/:/var/lib/rabbitmq/
+        - ./data/rabbitmq/logs/:/var/log/rabbitmq/
+    environment:
+        RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
+    ports:
+        - 5672:5672    #amqp
+        - 15672:15672  #http
+        - 15692:15692  #prometheus
+
+  redis:
+    image: "redis:alpine"
+    #command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    #hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis-data:/var/lib/redis
+      - ./etc/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+     - REDIS_REPLICATION_MODE=maste
+
   provider1-db:
     image: postgres
     restart: always
@@ -41,7 +69,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
       - provider1-db
-
 
   tempo:
     image: grafana/tempo:1.4.1
@@ -100,10 +127,13 @@ services:
       - "8080:8080"
     environment:
       PROVIDER1_URL_BASE: "http://boot-otel-tempo-provider1:8090"
+      RMQ_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+      RMQ_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
     volumes:
       - ./data/logs:/app/logs
     depends_on:
       - boot-otel-tempo-provider1
+      - boot-otel-tempo-mq-consumer
 
   promtail:
     image: grafana/promtail:2.2.0
@@ -136,10 +166,9 @@ services:
       - "9090:9090"
     depends_on:
       - boot-otel-tempo-api
-      - volume_exporter
 
   grafana:
-    image: grafana/grafana:9.0.2-ubuntu
+    image: grafana/grafana:7.4.0-ubuntu
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
