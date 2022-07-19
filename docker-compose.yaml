@@ -18,32 +18,28 @@ services:
       - ./data/loki-data:/tmp/loki
 
   rabbitmq:
-    image: rabbitmq:3.7.28-management
+    image: bitnami/rabbitmq:3.7
     #container_name: rabbitmq
     volumes:
-        - ./etc/rabbitmq/:/etc/rabbitmq/
-        - ./data/rabbitmq/data/:/var/lib/rabbitmq/
-        - ./data/rabbitmq/logs/:/var/log/rabbitmq/
+      - rabbitmq_data:/bitnami:rw
     environment:
-        RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
-        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
-        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
+      RABBITMQ_ERL_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-admin}
     ports:
-        - 5672:5672    #amqp
-        - 15672:15672  #http
-        - 15692:15692  #prometheus
+      - 5672:5672    #amqp
+      - 15672:15672  #http
+      - 15692:15692  #prometheus
 
   redis:
-    image: "redis:alpine"
-    #command: redis-server --requirepass sOmE_sEcUrE_pAsS
-    #hostname: redis
+    image: "bitnami/redis:7.0"
     ports:
       - "6379:6379"
     volumes:
-      - ./data/redis-data:/var/lib/redis
-      - ./etc/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis_data:/bitnami/redis/data
     environment:
-     - REDIS_REPLICATION_MODE=maste
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
 
   provider1-db:
     image: postgres
@@ -83,32 +79,10 @@ services:
       - "4318:4318"  # otlp http
       - "9411:9411"   # zipkin
 
-  # tempo:
-  #    image: grafana/tempo:1.4.1
-  #    command: ["-config.file=/etc/tempo.yaml"]
-  #    volumes:
-  #      - ./etc/tempo-local.yaml:/etc/tempo.yaml
-  #      - ./data/tempo-data:/tmp/tempo
-  #    restart: unless-stopped
-  #    ports:
-  #      - "14268:14268"  # jaeger ingest, Jaeger - Thrift HTTP
-  #      - "14250:14250"  # Jaeger - GRPC
-  #      - "4317:4317"  # OpenTelemetry
-  #      - "3102:3100"   # tempo
-  #
-  #  tempo-query:
-  #    image: grafana/tempo-query:1.4.1
-  #    command: ["--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml"]
-  #    volumes:
-  #      - ./etc/tempo-query.yaml:/etc/tempo-query.yaml
-  #    ports:
-  #      - "16686:16686"  # jaeger-ui
-  #    depends_on:
-  #      - tempo
 
   boot-otel-tempo-mq-consumer:
     image: "mnadeem/boot-otel-tempo-mq-consumer:0.0.1-SNAPSHOT"
-    command: '/app/bin/wait-for.sh rabbitmq:5672 -t 50 -- sh /app/bin/start-app.sh'
+#    command: '/app/bin/wait-for.sh rabbitmq:5672 -t 50 -- sh /app/bin/start-app.sh'
     ports:
       - "8091:8091"
     environment:
@@ -120,7 +94,7 @@ services:
       REDIS_PORT: ${REDIS_PORT:-6379}
     volumes:
       - ./data/logs:/app/logs
-      - ./etc/wait-for.sh:/app/bin/wait-for.sh   #https://github.com/eficode/wait-for
+#      - ./etc/wait-for.sh:/app/bin/wait-for.sh   #https://github.com/eficode/wait-for
     depends_on:
       - rabbitmq
       - redis
@@ -201,3 +175,9 @@ services:
       - prometheus
       - tempo
       - loki
+
+volumes:
+  rabbitmq_data:
+    driver: local
+  redis_data:
+    driver: local
