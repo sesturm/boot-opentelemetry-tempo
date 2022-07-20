@@ -160,7 +160,7 @@ services:
       - boot-otel-tempo-api
 
   grafana:
-    image: grafana/grafana:7.4.0-ubuntu
+    image: grafana/grafana:8.2.6-ubuntu
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
