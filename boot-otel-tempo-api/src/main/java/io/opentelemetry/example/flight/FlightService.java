@@ -33,8 +33,10 @@ public class FlightService {
 		return flights;
 	}
 
+	@WithSpan
 	private void send(List<Flight> flights) {
 		flights.forEach(flight -> {
+			Span.current().addEvent("airline "+ flight.getAirline());
 			this.producer.sendMessage(flight);
 		});		
 	}

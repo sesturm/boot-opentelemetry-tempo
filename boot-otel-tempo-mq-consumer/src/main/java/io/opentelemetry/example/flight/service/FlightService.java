@@ -2,6 +2,7 @@ package io.opentelemetry.example.flight.service;
 
 import java.time.Duration;
 
+import io.opentelemetry.api.trace.Span;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,6 +25,14 @@ public class FlightService {
 	@WithSpan
 	public void process(Flight flight) {
 		LOGGER.info("Processing : {}", flight);
+		if ("Unitely".equals(flight.getAirline())) {
+			try {
+				Thread.sleep(500);
+				Span.current().addEvent("bin aufgewacht");
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		valExpire("valExpireKey");		
 	}
 
