@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   loki:
-    image: grafana/loki:2.6.1
+    image: grafana/loki:2.7.3
     command: -config.file=/etc/loki/loki-local.yaml
     user: "0"
     ports:
@@ -55,27 +55,27 @@ services:
       - ./boot-otel-tempo-provider1/db/data:/var/lib/postgresql
       - ./boot-otel-tempo-provider1/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-#  tempo:
-#    image: grafana/tempo:1.4.1
-#    command: [ "-config.file=/etc/tempo.yaml" ]
-#    volumes:
-#      - ./etc/tempo-local.yaml:/etc/tempo.yaml
-#      - ./data/tempo-data:/tmp/tempo
-#    ports:
-#      - "14268:14268"  # jaeger ingest
-#      - "3200:3200"   # tempo
-#      - "4317:4317"  # otlp grpc
-#      - "4318:4318"  # otlp http
-#      - "9411:9411"   # zipkin
   tempo:
-    image: jaegertracing/all-in-one:1.36.0
+    image: grafana/tempo:2.0.0
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./etc/tempo-local.yaml:/etc/tempo.yaml
+      - ./data/tempo-data:/tmp/tempo
     ports:
-      - "16686:16686"
+      - "14268:14268"  # jaeger ingest
+      - "3200:3200"   # tempo
       - "4317:4317"  # otlp grpc
       - "4318:4318"  # otlp http
-      - "14250:14250" # jaeger
-    environment:
-      COLLECTOR_OTLP_ENABLED: true
+      - "9411:9411"   # zipkin
+#  tempo:
+#    image: jaegertracing/all-in-one:1.36.0
+#    ports:
+#      - "16686:16686"
+#      - "4317:4317"  # otlp grpc
+#      - "4318:4318"  # otlp http
+#      - "14250:14250" # jaeger
+#    environment:
+#      COLLECTOR_OTLP_ENABLED: true
 
 
   boot-otel-tempo-mq-consumer:
@@ -156,7 +156,7 @@ services:
       - boot-otel-tempo-api
 
   grafana:
-    image: grafana/grafana:8.2.6-ubuntu
+    image: grafana/grafana:9.3.6-ubuntu
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
