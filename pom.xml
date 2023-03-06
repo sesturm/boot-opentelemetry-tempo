@@ -21,7 +21,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<opentelemetry.version>1.23.0</opentelemetry.version>
-		<docker-maven-plugin.version>0.40.2</docker-maven-plugin.version>
+		<docker-maven-plugin.version>0.42.0</docker-maven-plugin.version>
 	</properties>
 
 	<dependencyManagement>
