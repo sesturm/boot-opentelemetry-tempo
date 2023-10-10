@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-alpine
+FROM arm64v8/eclipse-temurin:17-jre-ubi9-minimal
 
 ENV OTEL_AGENT_JAR_FILE=opentelemetry-javaagent.jar \
     APP_HOME=/app/bin \
