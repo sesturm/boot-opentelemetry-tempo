@@ -20,6 +20,7 @@ services:
   rabbitmq:
     image: bitnami/rabbitmq:3.7
     #container_name: rabbitmq
+    platform: linux/amd64
     volumes:
       - rabbitmq_data:/bitnami:rw
     environment:
@@ -44,6 +45,7 @@ services:
   provider1-db:
     image: postgres
     restart: always
+    platform: linux/amd64
     environment:
       - POSTGRES_DB=provider1
       - POSTGRES_USER=postgres
@@ -58,6 +60,7 @@ services:
   tempo:
     image: grafana/tempo:2.0.0
     command: [ "-config.file=/etc/tempo.yaml" ]
+    platform: linux/amd64
     volumes:
       - ./etc/tempo-local.yaml:/etc/tempo.yaml
       - ./data/tempo-data:/tmp/tempo
@@ -136,6 +139,7 @@ services:
   volume_exporter:
     image: mnadeem/volume_exporter
     command: ["--volume-dir=tempo:/tmp/tempo", "--volume-dir=logs:/app/logs", "--volume-dir=loki:/tmp/loki"]
+    platform: linux/amd64
     volumes:
       - ./data/logs:/app/logs
       - ./data/tempo-data:/tmp/tempo
