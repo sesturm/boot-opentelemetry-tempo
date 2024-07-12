@@ -1,6 +1,6 @@
 package io.opentelemetry.example.config;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -31,10 +32,11 @@ public class Provider1DbConfig {
 	public DataSourceProperties dataSourceProperties() {
 		return new DataSourceProperties();
 	}
-	
+
 	@Primary
 	@Bean(name = "provider1DataSource")
 	@ConfigurationProperties("provider1.datasource.configuration")
+	@DependsOnDatabaseInitialization
 	public HikariDataSource dataSource(@Qualifier("provider1DataSourceProperties") DataSourceProperties properties) {
 		return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
 	}
