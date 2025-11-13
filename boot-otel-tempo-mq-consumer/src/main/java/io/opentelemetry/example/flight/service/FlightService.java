@@ -27,7 +27,7 @@ public class FlightService {
 		LOGGER.info("Processing : {}", flight);
 		if ("Unitely".equals(flight.getAirline())) {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(600);
 				Span.current().addEvent("bin aufgewacht");
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
