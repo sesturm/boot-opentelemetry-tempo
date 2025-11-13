@@ -1,6 +1,8 @@
 package io.opentelemetry.example.flight;
 
+import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.opentelemetry.extension.annotations.WithSpan;
 
@@ -28,8 +31,19 @@ public class FlightClient {
 	public List<Flight> getFlights(String origin) {
 		LOGGER.info("Getting Flights from {}", provider1Url);
 
-		ResponseEntity<Flight[]> response = restTemplate.getForEntity(provider1Url, Flight[].class);
+		URI requestUri = UriComponentsBuilder.fromHttpUrl(provider1Url)
+				.queryParam("origin", origin)
+				.build(true)
+				.toUri();
 
-		return Arrays.asList(response.getBody());
+		ResponseEntity<Flight[]> response = restTemplate.getForEntity(requestUri, Flight[].class);
+
+		Flight[] flights = response.getBody();
+		if (flights == null) {
+			LOGGER.warn("Received empty response body when requesting flights for origin {}", origin);
+			return Collections.emptyList();
+		}
+
+		return Arrays.asList(flights);
 	}
 }
