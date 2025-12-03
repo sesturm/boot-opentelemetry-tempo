@@ -13,6 +13,8 @@ And basically integrates the following
 * [Grafana Tempo](https://grafana.com/oss/tempo/) Which internally uses [Jaeger](https://www.jaegertracing.io/)
 * [Spring Boot Project](https://spring.io/projects/spring-boot)
 
+> The stack now targets Spring Boot **4.0.0** and therefore requires a JDK 21 runtime (Temurin 21 images are used throughout the Docker build pipeline).
+
 
 # Running
 

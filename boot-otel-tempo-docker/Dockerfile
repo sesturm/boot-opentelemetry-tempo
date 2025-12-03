@@ -1,4 +1,4 @@
-FROM arm64v8/eclipse-temurin:17-jre-ubi9-minimal
+FROM arm64v8/eclipse-temurin:21-jre-ubi9-minimal
 
 ENV OTEL_AGENT_JAR_FILE=opentelemetry-javaagent.jar \
     APP_HOME=/app/bin \
